@@ -2,7 +2,7 @@
 
 import React, { useRef } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
-import { motion, MotionValue, useSpring, useTransform } from "framer-motion";
+import { motion, useSpring, useTransform } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 export interface DockProps extends VariantProps<typeof dockVariants> {
@@ -34,6 +34,7 @@ const Dock = React.forwardRef<HTMLDivElement, DockProps>(
     },
     ref
   ) => {
+    // ✅ Hooks must be defined at the top level (not conditionally)
     const mouseX = useSpring(Infinity);
     const mouseY = useSpring(Infinity);
 
@@ -47,7 +48,7 @@ const Dock = React.forwardRef<HTMLDivElement, DockProps>(
             distance,
           } as Partial<DockIconProps>);
         }
-        return child; // Don't pass props to invalid elements
+        return child;
       });
     };
 
@@ -55,11 +56,8 @@ const Dock = React.forwardRef<HTMLDivElement, DockProps>(
       <motion.div
         ref={ref}
         onMouseMove={(e) => {
-          if (orientation === "horizontal") {
-            mouseX.set(e.clientX);
-          } else {
-            mouseY.set(e.clientY);
-          }
+          mouseX.set(e.clientX);
+          mouseY.set(e.clientY);
         }}
         onMouseLeave={() => {
           mouseX.set(Infinity);
@@ -85,8 +83,8 @@ export interface DockIconProps {
   size?: number;
   magnification?: number;
   distance?: number;
-  mouseX?: MotionValue<number>;
-  mouseY?: MotionValue<number>;
+  mouseX: any;
+  mouseY: any;
   className?: string;
   children?: React.ReactNode;
   orientation?: "horizontal" | "vertical";
@@ -95,14 +93,15 @@ export interface DockIconProps {
 const DockIcon = ({
   magnification = DEFAULT_MAGNIFICATION,
   distance = DEFAULT_DISTANCE,
-  mouseX = useSpring(0),
-  mouseY = useSpring(0),
+  mouseX,
+  mouseY,
   className,
   children,
   ...props
 }: DockIconProps) => {
   const ref = useRef<HTMLDivElement>(null);
 
+  // ✅ Hooks always run at the top level
   const distanceHeightCalc = useTransform(mouseY, (val: number) => {
     const bounds = ref.current?.getBoundingClientRect() ?? { y: 0, height: 0 };
     return val - bounds.y - bounds.height / 2;
