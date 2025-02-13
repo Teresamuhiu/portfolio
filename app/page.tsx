@@ -6,8 +6,7 @@ import { Meteors } from "@/components/magicui/meteors";
 import Projects from "@/components/Projects";
 import Skills from "@/components/Skills";
 import WorkExperience from "@/components/WorkExperience";
-import dynamic from "next/dynamic";
-import Image from "next/image";
+
 
 
 export default function Home() {

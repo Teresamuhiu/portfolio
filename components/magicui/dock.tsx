@@ -38,16 +38,17 @@ const Dock = React.forwardRef<HTMLDivElement, DockProps>(
     const mouseY = useSpring(Infinity);
 
     const renderChildren = () => {
-      return React.Children.map(children, (child: any) => {
+      return React.Children.map(children, (child) => {
+        // ✅ Ensure only valid components receive `mouseX` and `mouseY`
         if (React.isValidElement(child) && typeof child.type !== "string") {
           return React.cloneElement(child, {
             mouseX,
             mouseY,
             magnification,
             distance,
-          });
+          } as Partial<DockIconProps>);
         }
-        return child;
+        return child; // Don't pass props to invalid elements
       });
     };
 
@@ -62,11 +63,8 @@ const Dock = React.forwardRef<HTMLDivElement, DockProps>(
           }
         }}
         onMouseLeave={() => {
-          if (orientation === "horizontal") {
-            mouseX.set(Infinity);
-          } else {
-            mouseY.set(Infinity);
-          }
+          mouseX.set(Infinity);
+          mouseY.set(Infinity);
         }}
         {...props}
         className={cn(dockVariants({ className }), {
@@ -98,20 +96,20 @@ export interface DockIconProps {
 const DockIcon = ({
   magnification = DEFAULT_MAGNIFICATION,
   distance = DEFAULT_DISTANCE,
-  mouseX,
-  mouseY,
+  mouseX = useSpring(0),
+  mouseY = useSpring(0),
   className,
   children,
   ...props
 }: DockIconProps) => {
   const ref = useRef<HTMLDivElement>(null);
 
-  const distanceHeightCalc = useTransform(mouseY ?? useSpring(0), (val: number) => {
+  const distanceHeightCalc = useTransform(mouseY, (val: number) => {
     const bounds = ref.current?.getBoundingClientRect() ?? { y: 0, height: 0 };
     return val - bounds.y - bounds.height / 2;
   });
 
-  const distanceWidthCalc = useTransform(mouseX ?? useSpring(0), (val: number) => {
+  const distanceWidthCalc = useTransform(mouseX, (val: number) => {
     const bounds = ref.current?.getBoundingClientRect() ?? { x: 0, width: 0 };
     return val - bounds.x - bounds.width / 2;
   });
