@@ -39,7 +39,6 @@ const Dock = React.forwardRef<HTMLDivElement, DockProps>(
 
     const renderChildren = () => {
       return React.Children.map(children, (child) => {
-        // ✅ Ensure only valid components receive `mouseX` and `mouseY`
         if (React.isValidElement(child) && typeof child.type !== "string") {
           return React.cloneElement(child, {
             mouseX,
